@@ -91,7 +91,7 @@ $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <span>&times;</span>
                 </button>
             </div>
-            <form action="save_leave.php" method="POST">
+            <form action="save_leave.php" method="POST" id="addLeaveForm">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>Employee</label>
@@ -125,7 +125,12 @@ $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-primary" id="saveLeaveBtn">
+                        <span class="btn-text">Save</span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Processing...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -142,7 +147,7 @@ $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <span>&times;</span>
                 </button>
             </div>
-            <form action="save_leave.php" method="POST">
+            <form action="save_leave.php" method="POST" id="editLeaveForm">
                 <input type="hidden" name="id" id="edit_id">
                 <div class="modal-body">
                     <div class="form-group">
@@ -176,7 +181,12 @@ $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="submit" class="btn btn-primary" id="updateLeaveBtn">
+                        <span class="btn-text">Update</span>
+                        <span class="btn-loading" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Processing...
+                        </span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -184,16 +194,115 @@ $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-$(document).ready(function() {
-    $('.edit-leave').click(function() {
-        $('#edit_id').val($(this).data('id'));
-        $('#edit_user_id').val($(this).data('user'));
-        $('#edit_date_start').val($(this).data('start'));
-        $('#edit_date_end').val($(this).data('end'));
-        $('#edit_status').val($(this).data('status'));
-        $('#edit_reason').val($(this).data('reason'));
-        $('#editLeaveModal').modal('show');
+document.addEventListener('DOMContentLoaded', function() {
+    // Edit leave button functionality
+    const editButtons = document.querySelectorAll('.edit-leave');
+    editButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            document.getElementById('edit_id').value = this.getAttribute('data-id');
+            document.getElementById('edit_user_id').value = this.getAttribute('data-user');
+            document.getElementById('edit_date_start').value = this.getAttribute('data-start');
+            document.getElementById('edit_date_end').value = this.getAttribute('data-end');
+            document.getElementById('edit_status').value = this.getAttribute('data-status');
+            document.getElementById('edit_reason').value = this.getAttribute('data-reason');
+            
+            // Show modal (assuming Bootstrap is available)
+            const modal = new bootstrap.Modal(document.getElementById('editLeaveModal'));
+            modal.show();
+        });
     });
+    
+    // Function to show loading state
+    function showLoadingState(button) {
+        button.disabled = true;
+        button.querySelector('.btn-text').style.display = 'none';
+        button.querySelector('.btn-loading').style.display = 'inline';
+    }
+    
+    // Function to hide loading state
+    function hideLoadingState(button) {
+        button.disabled = false;
+        button.querySelector('.btn-text').style.display = 'inline';
+        button.querySelector('.btn-loading').style.display = 'none';
+    }
+    
+    // Handle Add Leave Form Submit
+    const addLeaveForm = document.getElementById('addLeaveForm');
+    if (addLeaveForm) {
+        addLeaveForm.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('saveLeaveBtn');
+            showLoadingState(submitBtn);
+            
+            // Optional: Add form validation
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(function(field) {
+                if (!field.value.trim()) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                hideLoadingState(submitBtn);
+                alert('Please fill all required fields');
+            }
+        });
+    }
+    
+    // Handle Edit Leave Form Submit
+    const editLeaveForm = document.getElementById('editLeaveForm');
+    if (editLeaveForm) {
+        editLeaveForm.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('updateLeaveBtn');
+            showLoadingState(submitBtn);
+            
+            // Optional: Add form validation
+            const requiredFields = this.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(function(field) {
+                if (!field.value.trim()) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                hideLoadingState(submitBtn);
+                alert('Please fill all required fields');
+            }
+        });
+    }
+    
+    // Reset button state when modals are closed
+    const addModal = document.getElementById('addLeaveModal');
+    if (addModal) {
+        addModal.addEventListener('hidden.bs.modal', function() {
+            const submitBtn = document.getElementById('saveLeaveBtn');
+            hideLoadingState(submitBtn);
+            document.getElementById('addLeaveForm').reset();
+        });
+        
+        addModal.addEventListener('shown.bs.modal', function() {
+            const submitBtn = document.getElementById('saveLeaveBtn');
+            hideLoadingState(submitBtn);
+        });
+    }
+    
+    const editModal = document.getElementById('editLeaveModal');
+    if (editModal) {
+        editModal.addEventListener('hidden.bs.modal', function() {
+            const submitBtn = document.getElementById('updateLeaveBtn');
+            hideLoadingState(submitBtn);
+        });
+        
+        editModal.addEventListener('shown.bs.modal', function() {
+            const submitBtn = document.getElementById('updateLeaveBtn');
+            hideLoadingState(submitBtn);
+        });
+    }
 });
 </script>
 
