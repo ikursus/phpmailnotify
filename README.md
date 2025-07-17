@@ -98,3 +98,12 @@ Available placeholders for email templates:
 - **Email**: PHPMailer
 - **Editor**: CKEditor 4
 - **Database**: MySQL
+
+## Quick Guide
+How to Use:
+
+  1. Import the database using database.sql
+  2. Configure database in config/database.php
+  3. Set up SMTP settings through the web interface
+  4. Create/edit email templates with the WYSIWYG editor
+  5. Test by creating a leave request - it will auto-email group level 1 users
